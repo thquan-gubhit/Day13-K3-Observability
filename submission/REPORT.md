@@ -5,7 +5,7 @@
 - Tên nhóm: Tứ Tuất Tài Tử
 - Repository URL: https://github.com/thquan-gubhit/Day13-K3-Observability
 - Commit SHA tại thời điểm QA: `182094cbbe87d5d94ef0c249b80b712d6b8e32fb` (cần thay bằng SHA commit nộp cuối)
-- Thành viên D: **[điền họ tên]** — QA & Incident Analyst
+- Thành viên D: **Lê Minh Khiêm** — QA & Incident Analyst
 
 ## 2. Kết quả kỹ thuật
 
@@ -62,10 +62,10 @@ Evidence máy đọc được: `submission/evidence/cp3-investigation.md` và `d
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 |---|---|---|---|
-| Thành viên D — [điền họ tên] | Chạy baseline/challenge load test; xác minh test, log và dashboard contract; thiết kế dashboard spec; điều tra CP3; viết report | [điền SHA/PR sau khi commit] | Percentile phải gắn với cùng cửa sổ dữ liệu; correlation ID nối log, còn trace ID cần backend tracing thực sự; synchronous blocking có thể làm tail latency phía client cao hơn latency nội bộ từng request. |
+| Lê Minh Khiêm | Chạy baseline/challenge load test; xác minh test, log và dashboard contract; thiết kế dashboard spec; điều tra CP3; viết report | Commit [`930813e`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/930813ea1e5c592e68ae54ed54dba6b083593625), nhánh `khiem-cp3` | Percentile phải gắn với cùng cửa sổ dữ liệu; correlation ID nối log, còn trace ID cần backend tracing thực sự; synchronous blocking có thể làm tail latency phía client cao hơn latency nội bộ từng request. |
 
 ## 8. Việc còn lại trước khi nộp
 
 1. Bật/cấu hình Langfuse, chạy lại CP3 và điền trace ID retrieval chậm.
 2. Chạy dashboard runtime và chụp screenshot CP3 có time range, unit, threshold.
-3. Điền họ tên Thành viên D và SHA/PR cuối; không dùng SHA trước commit làm SHA nộp.
+3. Cập nhật SHA merge/nộp cuối sau khi pull request được nhập vào nhánh chính.
