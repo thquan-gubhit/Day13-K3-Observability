@@ -10,6 +10,10 @@
 ## 2. Kết quả kỹ thuật
 
 - Điểm `validate_logs.py`:
+  - Baseline (CP0, trước khi sửa code): **30/100** — xem [evidence](evidence/cp0-baseline-validate_logs.txt).
+    - FAILED: required fields (thiếu `correlation_id` trên 20 log `service=api`), correlation ID propagation (0 unique ID), log enrichment (thiếu `user_id_hash`/`session_id`/`feature`/`model`).
+    - PASSED: PII scrubbing — chỉ vì `summarize_text()` đã che sẵn `payload.message_preview`; `scrub_event` chưa được bật nên các trường khác vẫn chưa an toàn.
+  - Sau CP1:
 - Tổng số traces:
 - Số PII leak còn lại:
 - Link/đường dẫn dashboard:
