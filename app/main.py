@@ -22,27 +22,6 @@ app.add_middleware(CorrelationIdMiddleware)
 agent = LabAgent()
 
 
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Giữ correlation ID trên cả response lỗi.
-
-    Handler này nằm ngoài CorrelationIdMiddleware nên middleware không kịp gắn
-    header; phải tự đọc lại từ request.state để client vẫn tra cứu được log.
-    """
-    correlation_id = getattr(request.state, "correlation_id", "unknown")
-    log.error(
-        "unhandled_exception",
-        service="api",
-        error_type=type(exc).__name__,
-        payload={"detail": str(exc)},
-    )
-    return JSONResponse(
-        status_code=500,
-        content={"detail": type(exc).__name__, "correlation_id": correlation_id},
-        headers={"x-request-id": correlation_id},
-    )
-
-
 @app.on_event("startup")
 async def startup() -> None:
     log.info(

@@ -24,10 +24,10 @@
   - Server sinh ID theo format `req-<8hex>`, trả về cả trong header `x-request-id` lẫn body; thêm `x-response-time-ms`.
   - ID do client gửi lên được tái sử dụng (`req-fromclient`) để truy vết xuyên service.
   - Cả `request_received` và `response_sent`/`request_failed` của cùng một request dùng chung một ID → tra được toàn bộ hành trình bằng một lần lọc.
-  - Request lỗi 500 (incident `tool_fail`) vẫn trả `x-request-id` nhờ exception handler ở [app/main.py](../app/main.py); không có nó, ID sẽ mất đúng lúc cần điều tra nhất.
+  - Request lỗi 500 (incident `tool_fail`) vẫn trả `x-request-id`: `chat()` chuyển lỗi thành `HTTPException` nên response vẫn đi ngược qua middleware và được gắn header.
 - Evidence PII redaction: [cp1-correlation-id-and-pii.txt](evidence/cp1-correlation-id-and-pii.txt) mục 6 và [cp1-pii-manual-check.txt](evidence/cp1-pii-manual-check.txt).
   - `scrub_event` được đăng ký sau `TimeStamper` và trước `JsonlFileProcessor` + `JSONRenderer` → PII bị che trước khi ghi file và trước khi in console.
-  - Scrub đệ quy trên mọi field (str/dict/list), không chỉ `payload` và `event`; bỏ qua `ts`/`level` vì đó là field hạ tầng.
+  - Thêm PII pattern cho hộ chiếu và địa chỉ VN (che cả cụm sau từ khoá, có cả biến thể không dấu).
   - `user_id` không bao giờ vào log — chỉ ghi `user_id_hash` (SHA-256 rút gọn 12 ký tự).
 - Evidence trace waterfall: _(phần Tracing & Prompt Version)_
 - Giải thích một span đáng chú ý: _(phần Tracing & Prompt Version)_
@@ -63,4 +63,4 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 |---|---|---|---|
-| Nguyễn Quang Hưng (Thành viên A — Logging & Middleware) | CP0 setup/baseline; CP1: `CorrelationIdMiddleware`, enrich log metadata trong `/chat`, exception handler giữ correlation ID trên response lỗi, bật + mở rộng `scrub_event`, thêm PII pattern passport/địa chỉ VN, thêm 6 test trong `tests/test_correlation_id.py` | nhánh `hung`: commit CP0 `chore(cp0)`, commit CP1 `feat(cp1)` | `clear_contextvars()` là bắt buộc vì structlog dùng `contextvars` gắn theo task; worker được tái sử dụng nên nếu không xoá, request sau sẽ kế thừa `session_id`/`user_id_hash` của request trước — log trông hợp lệ nhưng gán sai người dùng. Đã viết test `test_context_is_not_leaked_between_requests` để khoá lại hành vi này. |
+| Nguyễn Quang Hưng (Thành viên A — Logging & Middleware) | CP0 setup/baseline; CP1: hoàn thiện 7 TODO — 4 TODO `CorrelationIdMiddleware`, 1 TODO enrich log metadata trong `/chat`, 1 TODO đăng ký `scrub_event`, 1 TODO thêm PII pattern (hộ chiếu, địa chỉ VN) | nhánh `hung`: commit CP0 `chore(cp0)`, commit CP1 `feat(cp1)` | `clear_contextvars()` là bắt buộc vì structlog dùng `contextvars` gắn theo task; worker được tái sử dụng nên nếu không xoá, request sau sẽ kế thừa `session_id`/`user_id_hash` của request trước — log trông vẫn hợp lệ nhưng gán sai người dùng, loại lỗi rất khó phát hiện khi đọc log. |
