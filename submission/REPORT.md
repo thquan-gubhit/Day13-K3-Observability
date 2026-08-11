@@ -4,8 +4,14 @@
 
 - Tên nhóm: Tứ Tuất Tài Tử
 - Repository URL: https://github.com/thquan-gubhit/Day13-K3-Observability
-- Commit SHA tại thời điểm QA: `182094cbbe87d5d94ef0c249b80b712d6b8e32fb` (cần thay bằng SHA commit nộp cuối)
-- Thành viên D: **Lê Minh Khiêm** — QA & Incident Analyst
+- Commit SHA hiện tại: `ea89612459f7d7947ada5bd40400db251fe9d9b7` (cập nhật lại sau commit nộp cuối)
+
+| Thành viên | Mã sinh viên | Phụ trách chính |
+|---|---|---|
+| **NGUYỄN QUANG HƯNG** | `2A202601523` | CP1 — Logging, PII redaction và validator |
+| **TRẦN HOÀNG QUÂN** | `2A202601805` | CP1 — Correlation ID và log enrichment |
+| **LÊ CHÍ ANH TUẤN** | `2A202601149` | CP2 — Tracing, prompt versioning, dashboard, SLO và alerts |
+| **LÊ MINH KHIÊM** | `2A202601645` | CP3 — QA, chạy challenge và điều tra incident |
 
 ## 2. Kết quả kỹ thuật
 
@@ -46,7 +52,7 @@ Alert rules và runbook: `config/alert_rules.yaml`, `docs/alerts.md`. Evidence C
 ## 6. Điều tra challenge CP3
 
 - Challenge ID: `day13-k3-observability-v1`; incident `rag_slow`; feature ảnh hưởng `refund`; threshold challenge 2000 ms.
-- Cách chạy: baseline `python scripts/load_test.py --concurrency 5`; sau đó `python scripts/inject_incident.py`, `python scripts/load_test.py --challenge --concurrency 5`, và tắt bằng `python scripts/inject_incident.py --disable`.
+- Cách chạy: khởi động API trước bằng `python -m uvicorn app.main:app --reload --env-file .env`; chạy baseline `python scripts/load_test.py --concurrency 5`; sau đó bật incident bằng `python scripts/inject_incident.py`, chạy `python scripts/load_test.py --challenge --concurrency 5`, và tắt bằng `python scripts/inject_incident.py --disable`.
 - Metrics baseline (10 response): P50 150 ms, P95/P99 152 ms, cost 0.022155 USD, 330/1411 input/output tokens, quality mean 0.880.
 - Metrics incident (5 response): P50 2651 ms, P95/P99 2656 ms, min–max 2650–2656 ms, cost 0.008661 USD, 162/545 tokens, quality mean 0.860, error rate 0%. P95 tăng 2504 ms (khoảng 17.5×) và cả 5 request vượt threshold 2000 ms; cost, error và quality không cho thấy regression tương ứng.
 - Correlation IDs: `req-fcf208c4`, `req-a72a8fc5`, `req-23015ce9`, `req-55897ccf`, `req-810cb75b`.
@@ -62,10 +68,13 @@ Evidence máy đọc được: `submission/evidence/cp3-investigation.md` và `d
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 |---|---|---|---|
-| Lê Minh Khiêm | Chạy baseline/challenge load test; xác minh test, log và dashboard contract; thiết kế dashboard spec; điều tra CP3; viết report | Commit [`930813e`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/930813ea1e5c592e68ae54ed54dba6b083593625), nhánh `khiem-cp3` | Percentile phải gắn với cùng cửa sổ dữ liệu; correlation ID nối log, còn trace ID cần backend tracing thực sự; synchronous blocking có thể làm tail latency phía client cao hơn latency nội bộ từng request. |
+| NGUYỄN QUANG HƯNG — `2A202601523` | CP1: hoàn thiện nhận diện/redaction PII; bổ sung kiểm tra số điện thoại Việt Nam và validator phát hiện PII trong log. | Commit [`7a57bfb`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/7a57bfb) | PII phải được loại bỏ trước bước render/ghi log; validator cần độc lập với chính hàm redaction để phát hiện rò rỉ thật. |
+| TRẦN HOÀNG QUÂN — `2A202601805` | CP1: triển khai correlation ID, truyền ID qua response header, bind metadata request và kích hoạt processor scrub PII. | Commit [`3b8c6a7`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/3b8c6a7), PR #1 | Context request phải được xóa và bind đúng vòng đời để log đồng thời không lẫn correlation ID; `user_id` cần được băm trước khi ghi log. |
+| LÊ CHÍ ANH TUẤN — `2A202601149` | CP2: tạo trace và prompt version evidence; thực hiện đổi label/rollback; hoàn thiện dashboard 6 panel, SLO, alert rules và runbook. | Commit [`e431969`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/e431969), PR #2 | Trace metadata phải liên kết đúng prompt name/label/version; dashboard cần đơn vị, time range và threshold rõ ràng để hỗ trợ điều tra. |
+| LÊ MINH KHIÊM — `2A202601645` | CP3: chạy baseline/challenge load test; xác minh test, log và dashboard contract; điều tra incident; tổng hợp evidence và báo cáo. | Commit [`930813e`](https://github.com/thquan-gubhit/Day13-K3-Observability/commit/930813ea1e5c592e68ae54ed54dba6b083593625), PR #3 | Percentile phải dùng cùng cửa sổ dữ liệu; correlation ID nối log còn trace ID cần backend tracing thật; synchronous blocking làm tail latency phía client cao hơn latency nội bộ. |
 
 ## 8. Việc còn lại trước khi nộp
 
-1. Bật/cấu hình Langfuse, chạy lại CP3 và điền trace ID retrieval chậm.
+1. Cập nhật Langfuse key hợp lệ, khởi động lại API, chạy lại CP3 và điền trace ID retrieval chậm.
 2. Chạy dashboard runtime và chụp screenshot CP3 có time range, unit, threshold.
 3. Cập nhật SHA merge/nộp cuối sau khi pull request được nhập vào nhánh chính.
