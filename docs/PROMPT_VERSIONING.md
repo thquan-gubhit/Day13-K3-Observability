@@ -30,6 +30,16 @@ Nếu Langfuse không khả dụng, app dùng template local và trace metadata 
 5. Chuyển label `production` sang version 2, chạy lại một request.
 6. Rollback `production` về version 1 và lưu ảnh evidence.
 
+Có thể tạo và đổi label bằng script đi kèm (mỗi thao tác vẫn cần chụp evidence trên giao diện):
+
+```bash
+python scripts/manage_langfuse_prompts.py setup
+python scripts/manage_langfuse_prompts.py promote
+python scripts/manage_langfuse_prompts.py rollback
+```
+
+Chỉ chạy `setup` một lần cho project vì mỗi lần chạy sẽ tạo thêm hai version mới. Script dừng mà không thay đổi Langfuse nếu thiếu credentials.
+
 Không chấm prompt nào “hay hơn”. Điểm nằm ở khả năng truy xuất version, đổi label và rollback có bằng chứng.
 
 ## Evidence

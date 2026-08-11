@@ -4,13 +4,16 @@ slis:
   latency_p95_ms:
     objective: 3000
     target: 99.5
-    note: Replace with your group's target
+    note: 99.5% request trong cửa sổ 28 ngày có P95 không vượt quá 3 giây
   error_rate_pct:
     objective: 2
     target: 99.0
+    note: 99% thời gian error rate không vượt quá 2%
   daily_cost_usd:
     objective: 2.5
     target: 100.0
+    note: Ngân sách vận hành không vượt quá 2.5 USD mỗi ngày
   quality_score_avg:
     objective: 0.75
     target: 95.0
+    note: 95% thời gian quality proxy trung bình đạt ít nhất 0.75
