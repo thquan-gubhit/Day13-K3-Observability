@@ -1,0 +1,8 @@
+﻿=== Kiem tra PII thu cong tren data/logs.jsonl (ngoai script validator) ===
+
+grep '@' -> 0 match (ky vong: 0)
+grep '4111' -> 0 match (ky vong: 0)
+grep '0987654321' -> 0 match (ky vong: 0)
+grep 'duong Lang' -> 0 match (ky vong: 0)
+grep 'student-01' -> 0 match (ky vong: 0)
+grep 'REDACTED' -> 4 match (ky vong: > 0)

@@ -1,0 +1,10 @@
+﻿[200] req-73f44094 | qa | 280.2ms
+[200] req-9454366d | qa | 157.5ms
+[200] req-3e920e30 | summary | 157.1ms
+[200] req-2a750332 | qa | 158.6ms
+[200] req-5d92281a | qa | 157.3ms
+[200] req-1f9bf202 | summary | 157.7ms
+[200] req-0f6b205b | qa | 157.2ms
+[200] req-e9ab5b64 | qa | 157.8ms
+[200] req-2e77ed9c | qa | 156.8ms
+[200] req-03133809 | qa | 158.1ms

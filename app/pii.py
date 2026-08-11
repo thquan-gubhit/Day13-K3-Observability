@@ -8,7 +8,20 @@ PII_PATTERNS: dict[str, str] = {
     "phone_vn": r"(?<!\d)(?:\+84|0)(?:[ .-]?\d){9}(?!\d)",
     "cccd": r"\b\d{12}\b",
     "credit_card": r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",
-    # TODO: Add more patterns (e.g., Passport, Vietnamese address keywords)
+    # Hộ chiếu VN: 1 chữ cái in hoa + 7-8 chữ số (ví dụ C1234567, P12345678).
+    "passport": r"\b[A-Z]\d{7,8}\b",
+    # Địa chỉ VN: che cả cụm "số nhà/đường/phường/... <phần còn lại của cụm>"
+    # thay vì chỉ che từ khóa, vì phần định danh thật nằm ngay sau từ khóa.
+    # Có cả biến thể không dấu vì người dùng thường gõ "so nha 12 duong Lang".
+    # Cố ý KHÔNG thêm biến thể không dấu của "tổ/ấp/xã/ngõ": không dấu chúng
+    # trùng với từ tiếng Anh thông dụng (to, ap, xa...) và sẽ xoá nhầm log.
+    "address_vn": (
+        r"(?i)\b(?:"
+        r"số nhà|đường|ngõ|ngách|tổ|thôn|ấp|phường|xã|thị trấn|"
+        r"quận|huyện|thị xã|tỉnh|thành phố"
+        r"|so nha|duong|ngach|thon|phuong|thi tran|quan|huyen|thi xa|tinh|thanh pho"
+        r")\b[^,.;\n]*"
+    ),
 }
 
 

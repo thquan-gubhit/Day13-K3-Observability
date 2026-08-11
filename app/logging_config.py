@@ -23,14 +23,32 @@ class JsonlFileProcessor:
 
 
 
+# Trường hạ tầng do chính processor sinh ra, không bao giờ chứa dữ liệu người dùng.
+# Bỏ qua để tránh regex vô tình phá timestamp/log level.
+SCRUB_SKIP_KEYS = frozenset({"ts", "level", "timestamp"})
+
+
+def _scrub_value(value: Any) -> Any:
+    """Scrub đệ quy: str, dict và list lồng nhau đều được duyệt."""
+    if isinstance(value, str):
+        return scrub_text(value)
+    if isinstance(value, dict):
+        return {k: _scrub_value(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_scrub_value(v) for v in value]
+    return value
+
+
 def scrub_event(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
-    payload = event_dict.get("payload")
-    if isinstance(payload, dict):
-        event_dict["payload"] = {
-            k: scrub_text(v) if isinstance(v, str) else v for k, v in payload.items()
-        }
-    if "event" in event_dict and isinstance(event_dict["event"], str):
-        event_dict["event"] = scrub_text(event_dict["event"])
+    """Che PII trên toàn bộ event, không chỉ riêng `payload` và `event`.
+
+    PII có thể lọt vào bất kỳ field nào (session_id do client đặt, detail của
+    exception, kwargs tự do...), nên quét tất cả thay vì whitelist vài field.
+    """
+    for key, value in event_dict.items():
+        if key in SCRUB_SKIP_KEYS:
+            continue
+        event_dict[key] = _scrub_value(value)
     return event_dict
 
 
@@ -42,8 +60,10 @@ def configure_logging() -> None:
             merge_contextvars,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso", utc=True, key="ts"),
-            # TODO: Register your PII scrubbing processor here
-            # scrub_event,
+            # Phải nằm SAU TimeStamper (để có đủ event_dict) và TRƯỚC
+            # JsonlFileProcessor + JSONRenderer (để PII bị che trước khi ghi file
+            # và trước khi in ra console).
+            scrub_event,
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             JsonlFileProcessor(),
